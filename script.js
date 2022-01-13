@@ -2,7 +2,7 @@ function startGame() {
   myGameArea.start();
   animatedObject.loadImages();
   myGameArea.draw(redSquare);
-  
+  bushObject.loadImages();
 }
 function updateGameArea() {
   myGameArea.wallpaper(wallpaper);
@@ -12,6 +12,7 @@ function updateGameArea() {
   animatedObject.update();
   myGameArea.draw(redSquare);
   myGameArea.drawGameObject(animatedObject);
+  myGameArea.drawGameObject(bushObject);
   animatedObject.update();
 }
 var myGameArea = {
@@ -75,10 +76,18 @@ var animatedObject = {
   imageList: [], //Vettore che conterrà tutte le immagini caricate
   contaFrame: 0, //Tiene conto di quanti frame sono passati
   actualFrame: 0, //Specifica quale frame disegnare
+  tryX: 0,
+  tryY: 0,
+
+
+
 
   update: function () {
-    this.x += this.speedX;
-    this.y += this.speedY;
+    this.tryY = this.y + this.speedY;
+    this.tryX = this.x + this.speedX;
+
+    //Prima di spostarmi realmente verifico che non ci siano collisioni
+    this.crashWith(bushObject);
     this.contaFrame++;
     if (this.contaFrame == 10) {
       this.contaFrame = 0;
@@ -87,6 +96,28 @@ var animatedObject = {
       this.image = this.imageList[this.actualFrame];
     }
   },
+  crashWith: function(otherobj) {
+    var myleft = this.tryX;
+    var myright = this.tryX + this.width;
+    var mytop = this.tryY;
+    var mybottom = this.tryY + this.height;
+    var otherleft = otherobj.x;
+    var otherright = otherobj.x + otherobj.width;
+    var othertop = otherobj.y;
+    var otherbottom = otherobj.y + otherobj.height;
+    var crash = true;
+
+    //NON HO COLLISIONI SE: Un oggetto è sopra oppure sotto oppure a destra oppure a sinistra dell’altro
+    if((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+      this.x = this.tryX; //Se non ho collisioni sposto realmente l’oggetto
+      this.y = this.tryY;
+    }
+    else //HO COLLISIONI MA PER ORA NON FACCIO NIENTE
+    {
+    }
+  },
+
+
 
   loadImages: function () {
     
@@ -100,6 +131,20 @@ var animatedObject = {
     this.image = this.imageList[this.actualFrame];
   }
 };
+var bushObject = {
+  width: 100,
+  height: 50,
+  x: 100,
+  y: 270 - 50,
+
+  loadImages: function() {
+    this.image = new Image(this.width, this.height);
+    this.image.src = "/png/Bush-1.png";
+  
+  }
+};
+
+
 
 
 let v = 2
